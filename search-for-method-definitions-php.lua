@@ -1,8 +1,6 @@
 #! /usr/bin/env lua
 -- Lookup method|member definitions in PHP
 --
--- NOTE: Only supports public member lookup
---
 -- (c) 2013 by Daniel Givney.
 --
 -- ========================================================
@@ -31,7 +29,7 @@ local function getBaseDir()
 end
 
 local function getGrepCommand(searchString)
-    local findCommand = "grep -nHIrF "..excludeFilters.." '"..searchString.."' "..getBaseDir()
+    local findCommand = "grep -nHIrF "..excludeFilters.." "..searchString.." "..getBaseDir()
     --~ geany.message("DEBUG", "Grep command is "..findCommand)
     return findCommand
 end
@@ -68,6 +66,15 @@ local function findOpenFiles(searchString)
     return fileCount,files
 end
 
+local function openFile(grepString, searchString)
+    --~ geany.message("DEBUG", "Opening "..grepString)
+    filename = string.sub(grepString, 1, string.find(grepString, ":", 0, true) - 1)
+    geany.open(filename)
+    text = string.sub(grepString, string.find(grepString, ":", string.find(grepString, ":", 0, true) + 1, true) + 1)
+    caretStart,caretEnd = geany.find(text, 0, geany.length(), {"regexp"} )
+    geany.caret(caretEnd);
+end
+
 ---- Start execution ----
 if not isProjectOpen() then
     geany.message("WARNING: No project is open. Searching the entire filesystem will take too long.")
@@ -79,11 +86,11 @@ else
     if not (originalString == "" or originalString == nil) then
 
         if (string.char(geany.byte(geany.caret())) == '(') then
-            searchString = "function "..originalString.."("
-            geany.message("Searching for method definition:", originalString.."()")
+            searchString = "-e 'function "..originalString.."('"
+            --~ geany.message("Searching for method definition:", originalString.."()")
         else
-            searchString = "public $"..originalString
-            geany.message("Searching for member definition:", "$"..originalString)
+            searchString = "-e 'public $"..originalString.."' -e 'private $"..originalString.."' -e 'protected $"..originalString.."'"
+            --~ geany.message("Searching for member definition:", "$"..originalString)
         end
 
         --~ geany.message("DEBUG", getGrepCommand(searchString))
@@ -97,16 +104,11 @@ else
         if fileCount == 0 then
             geany.message("Definition could not be found in this project path.\nLooking for: "..searchString)
         elseif fileCount == 1 then
-            --~ geany.message("DEBUG", "Opening "..files[1])
-            geany.open(string.sub(files[1], 1, string.find(files[1], ":", 0, true) - 1, true))
-            caretStart,caretEnd = geany.find(searchString, 0, geany.length(), {"regexp"} )
-            geany.caret(caretEnd);
+            openFile(files[1], searchString)
         else
-            filename = geany.choose("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"..fileCount.." files were found for definition: "..originalString.."()", files)
+            filename = geany.choose("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"..fileCount.." files were found for definition: "..searchString, files)
             if not (filename == nil) then
-                geany.open(string.sub(filename, 1, string.find(filename, ":", 0, true) - 1, true))
-                caretStart,caretEnd = geany.find(searchString, 0, geany.length(), {"regexp"} )
-                geany.caret(caretEnd);
+                openFile(filename, searchString)
             end
         end
     end
