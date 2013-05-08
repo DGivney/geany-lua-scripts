@@ -3,6 +3,13 @@
 --
 -- (c) 2013 by Daniel Givney.
 --
+-- ========================================================
+-- Modified from a previous work by Carl Antuar (See below)
+-- ========================================================
+--
+-- Modified File: Open files by partial file name and/or path.
+-- Authored By: Carl Antuar 2012
+--
 -- Distribution is permitted under the terms of the GPLv3
 -- or any later version.
 
@@ -54,7 +61,7 @@ local function findRevisions(filename)
 end
 
 local function openFileFromCommit(commit, filename)
-    local tempFile = os.tmpname().."_"..commit.."_"..geany.basename(filename)
+    local tempFile = os.tmpname().."_"..commit.."-"..geany.basename(filename)
     --~ geany.message("DEBUG", tempFile)
     local result = os.execute(getGitShowCommand(filename).." >> "..tempFile)
     if result == 0 then
