@@ -9,7 +9,6 @@ _File: compare.lua_
 
 Invoke the script (I have mine mapped to CRTL+SHIFT+c) to compare the current file contents to any open file. If current changes in file are not saved the script will create a shadow file allowing you can compare your changes against the saved version.
 
-
 ##Open file by typing - Carl Antuar 2012
 
 _File: open-file-by-typing.lua_
