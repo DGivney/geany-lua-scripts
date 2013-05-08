@@ -3,13 +3,6 @@
 --
 -- (c) 2013 by Daniel Givney.
 --
--- ========================================================
--- Modified from a previous work by Carl Antuar (See below)
--- ========================================================
---
--- Modified File: Open files by partial file name and/or path.
--- Authored By: Carl Antuar 2012
---
 -- Distribution is permitted under the terms of the GPLv3
 -- or any later version.
 
