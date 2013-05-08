@@ -1,5 +1,5 @@
 #! /usr/bin/env lua
--- Use git to find all previous versions of current file - click to open them from tmp drive
+-- Use git to find all previous versions of current file - click to open them from tmp folder
 --
 -- (c) 2013 by Daniel Givney.
 --
