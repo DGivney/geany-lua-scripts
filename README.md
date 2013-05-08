@@ -18,3 +18,9 @@ _File: search-for-method-definitions-php.lua_
 Modified from Carl Antuars script (open-file-by-typing.lua) this script works much like netbeans follow-in-function feature.  Highlight a method name or member in your code by double clicking on it and invoke the script (I have mine mapped to CRTL+SHIFT+d). Script uses grep to open it's class file and follow your cursor into that method's definition.  Could easily be modified to support other languages.
 
 Works best with an open Geany Project with directory root set.
+
+##Compare - Carl Antuar 2012
+
+_File: compare.lua_
+
+Invoke the script (I have mine mapped to CRTL+SHIFT+c) to compare the current file contents to any open file. If current changes in file are not saved the script will create a shadow file allowing you can compare your changes against the saved version.
