@@ -70,9 +70,10 @@ local function openFile(grepString, searchString)
     --~ geany.message("DEBUG", "Opening "..grepString)
     filename = string.sub(grepString, 1, string.find(grepString, ":", 0, true) - 1)
     geany.open(filename)
-    text = string.sub(grepString, string.find(grepString, ":", string.find(grepString, ":", 0, true) + 1, true) + 1)
-    caretStart,caretEnd = geany.find(text, 0, geany.length(), {"regexp"} )
-    geany.caret(caretEnd);
+    text = string.gsub(string.sub(grepString, string.find(grepString, ":", string.find(grepString, ":", 0, true) + 1, true) + 1), "^%s+", "")
+    --~ geany.message("DEBUG", "Text "..text)
+    caretStart,caretEnd = geany.find(text, 0, geany.length(), {"posix"} )
+    geany.caret(caretStart);
 end
 
 ---- Start execution ----
