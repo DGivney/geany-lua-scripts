@@ -25,7 +25,7 @@ Modified from Carl Antuars script (open-file-by-typing.lua) this script works mu
 
 Works best with an open Geany Project with directory root set.
 
-##Git Find revisions of file - Daniel Givney 2012
+##Git find revisions of file - Daniel Givney 2012
 
 _File: git-find-revisions-of-file.lua_
 
