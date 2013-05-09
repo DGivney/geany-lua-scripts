@@ -10,30 +10,14 @@
 
 local currentFile = geany.filename()
 
-local function isProjectOpen()
-    return not (geany.appinfo().project == nil)
-end
-
-local function getBaseDir()
-    if not (basedir == nil) then return basedir
-    elseif isProjectOpen() then return geany.appinfo()["project"]["base"]
-    else return "/"
-    end
-end
-
-local function getRelativeFilePath(filename)
-    local relativeFilePath = "."..string.gsub(filename, getBaseDir(), "")
-    return relativeFilePath
-end
-
 local function getGitLogCommand(filename)
-    local gitCommand = "cd "..getBaseDir()..";".."git log --no-merges --pretty=format:\"%h%d\t%s\t[%cn]\" "..getRelativeFilePath(filename)
+    local gitCommand = "cd "..geany.fileinfo().path..";".."git log --no-merges --pretty=format:\"%h%d\t%s\t[%cn]\" ./"..geany.fileinfo().name
     --~ geany.message("DEBUG", "Git LOG is "..gitCommand)
     return gitCommand
 end
 
 local function getGitShowCommand(filename)
-    local gitCommand = "cd "..getBaseDir()..";".."git show "..commit..":"..getRelativeFilePath(filename)
+    local gitCommand = "cd "..geany.fileinfo().path..";".."git show "..commit..":./"..geany.fileinfo().name
     --~ geany.message("DEBUG", "GIT SHOW is "..gitCommand)
     return gitCommand
 end
@@ -66,21 +50,15 @@ end
 
 ---- Start execution ----
 
-if not isProjectOpen() then
-    geany.message("WARNING: No project is open. Git can not run without a root directory set.")
+local fileCount,files = findRevisions(currentFile)
+
+if fileCount == 0 then
+    geany.message("No revisions exist for this file.")
 else
-
-    local fileCount,files = findRevisions(currentFile)
-
-    if fileCount == 0 then
-        geany.message("No revisions exist for this file.")
-    else
-        commit = geany.choose("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"..fileCount.." revisions were found.", files)
-        if not (commit == nil) then
-            commit = string.gsub(string.sub(commit, 0, string.find(commit, "\t")), "%s+", "")
-            --~ geany.message("DEBUG", "Commit is: "..commit)
-            openFileFromCommit(commit, currentFile)
-        end
+    commit = geany.choose("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"..fileCount.." revisions were found.", files)
+    if not (commit == nil) then
+        commit = string.gsub(string.sub(commit, 0, string.find(commit, "\t")), "%s+", "")
+        --~ geany.message("DEBUG", "Commit is: "..commit)
+        openFileFromCommit(commit, currentFile)
     end
-
 end
