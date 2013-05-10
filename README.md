@@ -30,3 +30,9 @@ Works best with an open Geany Project with directory root set.
 _File: git-find-revisions-of-file.lua_
 
 Invoke the script (I have mine mapped to CRTL+SHIFT+v) to get all versions of current file. Choose a commit and that version of the file will open in a new tab. Works great with Carl Antuar's Compare script.
+
+##Compare 3 files - Daniel Givney 2012
+
+_File: compare-3-files.lua_
+
+Invoke the script (I have mine mapped to CRTL+SHIFT+c) to compare any open file to any other file (Choosing the Left, Right and an optional Middle file). Unsaved changes are compared to the original saved file by default. This script improved on Carl Antuar's script.
