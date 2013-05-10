@@ -11,7 +11,7 @@
 local currentFile = geany.filename()
 
 local function getGitLogCommand(filename)
-    local gitCommand = "cd "..geany.fileinfo().path..";".."git log --no-merges --pretty=format:\"%h%d\t%s\t[%cn]\" ./"..geany.fileinfo().name
+    local gitCommand = "cd "..geany.fileinfo().path..";".."git log --no-merges --pretty=format:\"%h\t%cr\t%s\t[%cn]\" ./"..geany.fileinfo().name
     --~ geany.message("DEBUG", "Git LOG is "..gitCommand)
     return gitCommand
 end
@@ -57,7 +57,7 @@ if fileCount == 0 then
 else
     commit = geany.choose("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"..fileCount.." revisions were found.", files)
     if not (commit == nil) then
-        commit = string.gsub(string.sub(commit, 0, string.find(commit, "\t")), "%s+", "")
+        commit = string.gsub(string.sub(commit, 0, string.find(commit, "%s")), "%s+", "")
         --~ geany.message("DEBUG", "Commit is: "..commit)
         openFileFromCommit(commit, currentFile)
     end
