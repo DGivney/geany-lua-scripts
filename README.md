@@ -35,4 +35,4 @@ Invoke the script (I have mine mapped to CRTL+SHIFT+v) to get all versions of cu
 
 _File: compare-3-files.lua_
 
-Invoke the script (I have mine mapped to CRTL+SHIFT+c) to compare any open file to any other file (Choosing the Left, Right and an optional Middle file). Unsaved changes are compared to the original saved file by default. This script improved on Carl Antuar's script.
+Invoke the script (I have mine mapped to CRTL+SHIFT+c) to compare any open file to any other file (Choosing the Left, Right and an optional Middle file). Unsaved changes are compared to the original saved file by default. This script adds extra functionality to Carl Antuar's script.
