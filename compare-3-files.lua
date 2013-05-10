@@ -17,9 +17,10 @@
 ---- Define functions ----
 
 function createWindow(dlg, file1Default, file2Default)
+    dlg:label("Choose the files to compare")
     dlg:select("file1", file1Default,  "Left file:     \t")
     dlg:select("file2", file2Default,  "Right file:   \t")
-    dlg:heading("Leave blank to diff only two files")
+    dlg:heading("Leave blank to only diff two files")
     dlg:select("file3", "no-result-if-empty",  "Middle file:\t")
     for filename in geany.documents()
     do
@@ -60,7 +61,7 @@ end
 
 ---- Start execution ----
 
-local dlg=dialog.new("Which documents do you want to compare", { "_Cancel", "_Ok" } )
+local dlg=dialog.new("Compare Open Files", { "_Cancel", "_Ok" } )
 
 if geany.fileinfo().changed then
     local tempFile = handleUnsavedChanges()
@@ -106,6 +107,4 @@ if (button == 2) and results then
         geany.message("Please choose a left & right file")
     end
 
-else
-   geany.message("Cancelled")
 end
