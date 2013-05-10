@@ -25,13 +25,13 @@ Modified from Carl Antuars script (open-file-by-typing.lua) this script works mu
 
 Works best with an open Geany Project with directory root set.
 
-##Git find revisions of file - Daniel Givney 2012
+##Git find revisions of file - Daniel Givney 2013
 
 _File: git-find-revisions-of-file.lua_
 
 Invoke the script (I have mine mapped to CRTL+SHIFT+v) to get all versions of current file. Choose a commit and that version of the file will open in a new tab. Works great with Carl Antuar's Compare script.
 
-##Compare 3 files - Daniel Givney 2012
+##Compare 3 files - Daniel Givney 2013
 
 _File: compare-3-files.lua_
 
