@@ -8,25 +8,23 @@
 
 ---- Define functions ----
 
-local currentFile = geany.filename()
-
-local function getGitLogCommand(filename)
+local function getGitLogCommand()
     local gitCommand = "cd "..geany.fileinfo().path..";".."git log --no-merges --pretty=format:\"%h\t%cr\t%s\t[%cn]\" ./"..geany.fileinfo().name
     --~ geany.message("DEBUG", "Git LOG is "..gitCommand)
     return gitCommand
 end
 
-local function getGitShowCommand(filename)
+local function getGitShowCommand(commit)
     local gitCommand = "cd "..geany.fileinfo().path..";".."git show "..commit..":./"..geany.fileinfo().name
     --~ geany.message("DEBUG", "GIT SHOW is "..gitCommand)
     return gitCommand
 end
 
-local function findRevisions(filename)
+local function findRevisions()
     local files = {}
     local fileCount = 0
     local tempFile = os.tmpname()
-    local result = os.execute(getGitLogCommand(filename).." >> "..tempFile)
+    local result = os.execute(getGitLogCommand().." >> "..tempFile)
     if result == 0 then
         for version in io.lines(tempFile) do
             -- need to index from 1 to show up properly in choose dialog
@@ -37,10 +35,10 @@ local function findRevisions(filename)
     return fileCount,files
 end
 
-local function openFileFromCommit(commit, filename)
-    local tempFile = os.tmpname().."_"..commit.."-"..geany.basename(filename)
+local function openFileFromCommit(commit)
+    local tempFile = os.tmpname().."_"..commit.."-"..geany.fileinfo().name
     --~ geany.message("DEBUG", tempFile)
-    local result = os.execute(getGitShowCommand(filename).." >> "..tempFile)
+    local result = os.execute(getGitShowCommand(commit).." >> "..tempFile)
     if result == 0 then
         geany.open(tempFile)
     else
@@ -50,15 +48,15 @@ end
 
 ---- Start execution ----
 
-local fileCount,files = findRevisions(currentFile)
+local fileCount,files = findRevisions()
 
 if fileCount == 0 then
     geany.message("No revisions exist for this file.")
 else
-    commit = geany.choose("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"..fileCount.." revisions were found.", files)
+    local commit = geany.choose("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"..fileCount.." revisions were found.", files)
     if not (commit == nil) then
         commit = string.gsub(string.sub(commit, 0, string.find(commit, "%s")), "%s+", "")
         --~ geany.message("DEBUG", "Commit is: "..commit)
-        openFileFromCommit(commit, currentFile)
+        openFileFromCommit(commit)
     end
 end
