@@ -9,13 +9,13 @@
 ---- Define functions ----
 
 local function getGitLogCommand()
-    local gitCommand = "cd "..geany.fileinfo().path..";".."git log --no-merges --pretty=format:\"%h\t%cr\t%s\t[%cn]\" ./"..geany.fileinfo().name
+    local gitCommand = "cd "..geany.fileinfo().path..";".."git log --no-merges --pretty=format:\"%h\t%cr\t%s\t[%cn]\" ./"..string.gsub(geany.fileinfo().name, "%s", "\\ ")
     --~ geany.message("DEBUG", "Git LOG is "..gitCommand)
     return gitCommand
 end
 
 local function getGitShowCommand(commit)
-    local gitCommand = "cd "..geany.fileinfo().path..";".."git show "..commit..":./"..geany.fileinfo().name
+    local gitCommand = "cd "..geany.fileinfo().path..";".."git show "..commit..":./"..string.gsub(geany.fileinfo().name, "%s", "\\ ")
     --~ geany.message("DEBUG", "GIT SHOW is "..gitCommand)
     return gitCommand
 end
