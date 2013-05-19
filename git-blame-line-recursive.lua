@@ -80,7 +80,7 @@ local function parseLineNumberFromOutput(output)
     if output==nil or output=="" then
         return ""
     else
-        local line = string.sub(output, string.find(output, "%s")+1, string.find(output, "%s", string.find(output, "%s")+1))
+        local line = string.gsub(string.sub(output, string.find(output, "%s")+1, string.find(output, "%s", string.find(output, "%s")+1)), "%s+", "")
         --~ geany.message("DEBUG","Line is "..line)
         return line
     end
@@ -122,6 +122,7 @@ local function findChangesToLine(line)
 
         nextOutput = executeBlameCommand(line, commit)
         if string.len(nextOutput) > 0 then
+            --~ geany.message("DEBUG", "string_siml check="..(string_simil(nextOutput, output)*100).." < "..threshold)
             if lineCount > 0 and string_simil(nextOutput, output)*100 < threshold then
                 local regexOutput = executeBlameCommand(line, commit, string.gsub(patch,"^%s|%s$", ""))
                 if (string.len(regexOutput) > 0) then
