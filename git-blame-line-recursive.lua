@@ -66,6 +66,9 @@ local function parseFieldsFromOutput(output)
         return "","",""
     else
         local commit = string.gsub(string.sub(output, 0, string.find(output, "%s")), "%s+", "")
+        if showRefactoringCommits then
+            commit = string.gsub(commit, "^"..denoteRefactoringCommitsBySymbol, "")
+        end
         local author = string.sub(output, string.find(output, "(", 0, true), string.find(output, ")", 0, true))
         local patch = string.gsub(string.gsub(string.sub(output, string.find(output, ")", 0, true) + 1, -1), "^%s+", ""), "%s+$", "")
         --~ geany.message("DEBUG", commit.." :: "..author.." :: "..patch)
@@ -147,12 +150,13 @@ local function findChangesToLine(line)
     return fileCount,files
 end
 
-local function openFileFromCommit(commit)
+local function openFileFromCommit(commit, line)
     local tempFile = os.tmpname().."_"..commit.."-"..geany.fileinfo().name
     --~ geany.message("DEBUG", tempFile)
     local result = os.execute(getGitShowCommand(commit).." >> "..tempFile)
     if (result == 0) then
         geany.open(tempFile)
+        geany.caret(geany.rowcol(line, 0));
     else
         geany.message("Could not open tmp file: "..tempFile)
     end
@@ -170,6 +174,6 @@ else
     if not (output == nil) then
         local commit,author,patch = parseFieldsFromOutput(output)
         --~ geany.message("DEBUG", "Commit is: "..commit)
-        openFileFromCommit(commit)
+        openFileFromCommit(commit, parseLineNumberFromOutput(output))
     end
 end

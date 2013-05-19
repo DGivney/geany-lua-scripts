@@ -71,8 +71,7 @@ local function openFile(grepString, searchString)
     filename = string.sub(grepString, 1, string.find(grepString, ":", 0, true) - 1)
     line = string.sub(grepString, string.find(grepString, ":", 0, true) + 1, string.find(grepString, ":", string.find(grepString, ":", 0, true) + 1, true) - 1)
     geany.open(filename)
-    local caret = geany.rowcol(line, 1)
-    geany.caret(caret);
+    geany.caret(geany.rowcol(line, 0));
 end
 
 ---- Start execution ----
