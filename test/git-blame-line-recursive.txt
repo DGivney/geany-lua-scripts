@@ -2,6 +2,6 @@ Line one
 Line two
 New line three
 New line four
-Line three
-Line four
+    Line three
+    Line four
 EOF
