@@ -36,3 +36,9 @@ Invoke the script (I have mine mapped to CRTL+SHIFT+v) to get all versions of cu
 _File: compare-3-files.lua_
 
 Invoke the script (I have mine mapped to CRTL+SHIFT+c) to compare any open file to any other file (Choosing the Left, Right and an optional Middle file). Unsaved changes are compared to the original saved file by default. This script adds extra functionality to Carl Antuar's script.
+
+##Git blame line recursive - Daniel Givney 2013
+
+_File: git-blame-line-recursive.lua_
+
+Invoke the script (I have mine mapped to CRTL+SHIFT+b) to find all changes to current line in the current file.  This script uses a simple similarity check function to discover possible changes to that line beyond refactoring and up until a certain threshold (For example if lines are added above it and the line number changes or whitespace padding is added/removed from line). Outputs the line history, selecting the version with open it for review.
