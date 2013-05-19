@@ -1,7 +1,7 @@
-Line one
-Line two
-New line three
-New line four
-    Line three
-    Line four
+Line 1
+Line 2
+New line 3
+New line 4
+    Line 3
+    Line 4
 EOF
