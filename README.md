@@ -41,4 +41,4 @@ Invoke the script (I have mine mapped to CRTL+SHIFT+c) to compare any open file 
 
 _File: git-blame-line-recursive.lua_
 
-Invoke the script (I have mine mapped to CRTL+SHIFT+b) to find all changes to current line in the current file.  This script uses a simple similarity check function to discover possible changes to that line beyond refactoring and up until a certain threshold (For example if lines are added above it and the line number changes or whitespace padding is added/removed from line). Outputs the line history, selecting the version with open it for review.
+Invoke the script (I have mine mapped to CRTL+SHIFT+b) to find all changes to the current line in the current file.  This script uses a simple similarity check function to discover possible changes to that line beyond refactoring and up until a certain threshold (for example if lines are added above it and the line number changes or whitespace padding is added/removed from line). Outputs the line history - choosing a commit will open that version in a new tab for the user to review changes in context.
