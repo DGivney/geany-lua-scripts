@@ -106,6 +106,14 @@ local function executeBlameCommand(line, commit, regex)
     return output
 end
 
+local function compareOutputs(output1, output2)
+    local commit1,author1,patch1 = parseFieldsFromOutput(output1)
+    local commit2,author2,patch2 = parseFieldsFromOutput(output2)
+    --~ geany.message("DEBUG", "patch1: /"..patch1.."/\patch2: /"..patch2.."/")
+    --~ geany.message("DEBUG", "string_siml check="..(string_simil(patch1, patch2)*100).." < "..threshold)
+    return string_simil(patch1, patch2)*100
+end
+
 local function findChangesToLine(line)
     local files = {}
     local tempFile = os.tmpname()
@@ -122,8 +130,8 @@ local function findChangesToLine(line)
 
         nextOutput = executeBlameCommand(line, commit)
         if string.len(nextOutput) > 0 then
-            --~ geany.message("DEBUG", "string_siml check="..(string_simil(nextOutput, output)*100).." < "..threshold)
-            if lineCount > 0 and string_simil(nextOutput, output)*100 < threshold then
+
+            if lineCount > 0 and compareOutputs(nextOutput, output) < threshold then
                 local regexOutput = executeBlameCommand(line, commit, string.gsub(patch,"^%s|%s$", ""))
                 if (string.len(regexOutput) > 0) then
                     if showRefactoringCommits then
