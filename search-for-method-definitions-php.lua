@@ -69,11 +69,10 @@ end
 local function openFile(grepString, searchString)
     --~ geany.message("DEBUG", "Opening "..grepString)
     filename = string.sub(grepString, 1, string.find(grepString, ":", 0, true) - 1)
+    line = string.sub(grepString, string.find(grepString, ":", 0, true) + 1, string.find(grepString, ":", string.find(grepString, ":", 0, true) + 1, true) - 1)
     geany.open(filename)
-    text = string.gsub(string.sub(grepString, string.find(grepString, ":", string.find(grepString, ":", 0, true) + 1, true) + 1), "^%s+", "")
-    --~ geany.message("DEBUG", "Text "..text)
-    caretStart,caretEnd = geany.find(text, 0, geany.length(), {"posix"} )
-    geany.caret(caretStart);
+    local caret = geany.rowcol(line, 1)
+    geany.caret(caret);
 end
 
 ---- Start execution ----
