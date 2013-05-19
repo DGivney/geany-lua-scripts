@@ -74,7 +74,12 @@ if not isProjectOpen() then
     basedir = geany.input("WARNING: No project is open. Searching the entire filesystem may be very slow.\nPlease choose the base directory to search.")
 end
 
-local searchString = geany.input("Please enter all or part of the filename that you wish to open.\nYou can use shell wildcards * and ?", geany.selection())
+local searchString = geany.selection()
+
+if searchString == "" then
+    searchString = geany.input("Please enter all or part of the filename that you wish to open.\nYou can use shell wildcards * and ?", geany.selection())
+end
+
 if not (searchString == nil) then
     --~ geany.message("DEBUG", getFindCommand(searchString))
     local fileCount,files = findFiles(searchString)
