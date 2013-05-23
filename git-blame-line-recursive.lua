@@ -86,8 +86,15 @@ local function parseLineNumberFromOutput(output)
     end
 end
 
+local function escapeSpecialChars(regex)
+    local regex = string.gsub(regex, "(\$)", "\\$")
+    regex = string.gsub(regex, "(\^)", "\\^")
+    --~ geany.message("DEBUG", "regex is "..regex)
+    return regex
+end
+
 local function getGitBlameCommand(line, commit, regex)
-    local gitCommand = "cd "..geany.fileinfo().path..";".."git blame -n -L "..(regex and "'/"..string.gsub(regex, "'", "\'").."/'" or line)..",+1 "..commit.." -- ./"..string.gsub(geany.fileinfo().name, "%s", "\\ ")
+    local gitCommand = "cd "..geany.fileinfo().path..";".."git blame -n -L "..(regex and '"/'..escapeSpecialChars(regex)..'/"' or line)..",+1 "..commit.." -- ./"..string.gsub(geany.fileinfo().name, "%s", "\\ ")
     --~ geany.message("DEBUG", "GIT BlAME is "..gitCommand)
     return gitCommand
 end
