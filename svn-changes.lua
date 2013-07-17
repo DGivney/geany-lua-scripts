@@ -8,6 +8,9 @@
 -- with progressive disclosure of scan results;
 -- add 'all changes since revision' option.
 -- v0.5 - consolidate choices into custom preferences dialog.
+-- v0.6 - rearranged to show revision list before choosing the revision
+-- range type; fixed 'show more' handling for multiline commit comments.
+-- v0.7 - allow selection of ending revision; fix revision list width.
 -- (c) 2013 by Carl Antuar.
 -- Distribution is permitted under the terms of the GPLv3
 -- or any later version.
@@ -18,6 +21,7 @@ debugEnabled = false
 _PREFERENCE_FILENAME = "file"
 _PREFERENCE_SCAN_SIZE = "scanCount"
 _PREFERENCE_DIFF_VIEWER = "diffViewer"
+_SPACER = "\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
 
 ---- Define utility functions ----
 
@@ -89,7 +93,7 @@ local function getRevisionOptions()
 		svnDialog:radio("fileType", "currentDir", "Current directory ("..geany.dirname(geany.filename())..")")
 	end
 	if isProjectOpen() then
-		svnDialog:radio("fileType", "projectBaseDir", "Project base directory")
+		svnDialog:radio("fileType", "projectBaseDir", "Project base directory ("..geany.appinfo()["project"]["base"]..")")
 	end
 	svnDialog:radio("fileType", "customFile", "Other:")
 	svnDialog:file("customFile", geany.wkdir(), "")
@@ -149,6 +153,36 @@ local function getRevisionOptions()
 	return preferences
 end
 
+local function pickRevision(filename, scanCount, prompt)
+	local revision
+	local increaseScanItem = "Show more.."
+	local previousRevisionCount = 0
+	if not prompt then prompt = "Please choose the starting revision to review".._SPACER end
+	repeat
+		local revisionCount,revisions = getOutputLines(getQuickLogCommand(filename, scanCount))
+		if not (revisionCount == previousRevisionCount) then
+			debugMessage("Adding 'Show more' item to revision list")
+			revisions[revisionCount + 1] = increaseScanItem
+			previousRevisionCount = revisionCount
+		else
+			debugMessage("Same result count as last time; all revisions retrieved")
+		end
+		if revisionCount == 0 then
+			geany.message("Unable to get revision log for "..filename..". Please ensure that this file is under version control.")
+			return nil
+		else
+			revision = geany.choose(prompt, revisions)
+			if not revision then return nil
+			elseif revision == increaseScanItem then
+				scanCount = scanCount * 2
+			else
+				revision = string.match(revision, "^[0-9]+")
+			end
+		end
+	until not (revision == increaseScanItem)
+	return revision
+end
+
 ---- Start execution ----
 
 local preferences = getRevisionOptions()
@@ -157,44 +191,35 @@ if not preferences then
 	return
 end
 
+if debugEnabled then
+	for key,value in pairs(preferences) do
+		debugMessage("Key ["..key.."] has value ["..value.."]")
+	end
+end
+
 local filename = preferences[_PREFERENCE_FILENAME]
 local scanCount = preferences[_PREFERENCE_SCAN_SIZE]
 local diffViewer = preferences[_PREFERENCE_DIFF_VIEWER]
 
-local revision
-local revisionTypes = {[1]="Single revision", [2]="All changes since revision", [3]="Custom"}
+local revision = pickRevision(filename, scanCount)
+if not revision then return end
+
+local revisionTypes = {[1]="Single revision", [2]="All changes since revision", [3]="Choose end revision", [4]="Custom"}
 local revisionType = geany.choose("What revision range would you like to view?", revisionTypes)
 
 if revisionType == nil then return end
 
 debugMessage("Revision type is "..revisionType)
-if revisionType == revisionTypes[3] then
-	revision = geany.input("Please enter a revision or range to review")
-else
-	local increaseScanItem = "Show more.."
-	repeat
-		local revisionCount,revisions = getOutputLines(getQuickLogCommand(filename, scanCount))
-		if revisionCount == scanCount then
-			revisions[revisionCount + 1] = increaseScanItem
-		end
-		if revisionCount == 0 then
-			geany.message("Unable to get revision log for "..filename..". Please ensure that this file is under version control.")
-			return
-		else
-			revision = geany.choose("Please choose a revision", revisions)
-			if not revision then return
-			elseif revision == increaseScanItem then
-				scanCount = scanCount * 2
-			else
-				revision = string.match(revision, "^[0-9]+")
-			end
-		end
-	until not (revision == increaseScanItem)
-	if revisionType == revisionTypes[2] then
-		revision = (revision - 1)..":HEAD"
-	end
+if revisionType == revisionTypes[2] then
+	revision = (revision - 1)..":HEAD"
+elseif revisionType == revisionTypes[3] then
+	local endRevision = pickRevision(filename, scanCount, "Please choose the end revision".._SPACER)
+	if not endRevision then return end
+	revision = (revision - 1)..":"..endRevision
+elseif revisionType == revisionTypes[4] then
+	revision = geany.input("Please enter a revision or range to review", (revision-1)..":"..revision)
+	if not revision then return end
 end
-if revision == nil then return end
 debugMessage("Revision was "..revision)
 
 if diffViewer == "diff" then
@@ -204,5 +229,5 @@ if diffViewer == "diff" then
 	geany.open(tempFile)
 else
 	geany.timeout(0)
-	os.execute(getSVNDiffCommand(revision, filename))
+	os.execute(getSVNDiffCommand(revision, filename, diffViewer))
 end
