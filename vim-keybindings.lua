@@ -2,7 +2,7 @@
 -- Provide a subset of vim keybindings.
 --
 -- v0.1
--- v0.2 - added commands: fF
+-- v0.2 - added commands: fF^$
 -- (c) 2013 by Carl Antuar.
 -- Distribution is permitted under the terms of the GPLv3
 -- or any later version.
@@ -10,6 +10,40 @@
 ---- Define constants
 debugEnabled = false
 keyGroups = { ["nav"]="hjklwe", ["lower"]="abcdefghijklmnopqrstuvwxyz", ["upper"]="ABCDEFGHIJKLMNOPQRSTUVWXYZ", ["whitespace"]=" \t\n\r" }
+symbolKeys = {
+ ["numbersign"]="#",
+ ["slash"]="/",
+ ["exclam"]="!",
+ ["backslash"]="\\",
+ ["at"]="@",
+ ["dollar"]="$",
+ ["percent"]="%",
+ ["asciicircum"]="^",
+ ["ampersand"]="&",
+ ["asterisk"]="*",
+ ["parenleft"]="(",
+ ["parenright"]=")",
+ ["minus"]="-",
+ ["underscore"]="_",
+ ["equal"]="=",
+ ["plus"]="+",
+ ["bar"]="|",
+ ["colon"]=":",
+ ["semicolon"]=";",
+ ["comma"]=",",
+ ["period"]=".",
+ ["question"]="?",
+ ["less"]="<",
+ ["greater"]=">",
+ ["apostrophe"]="'",
+ ["quotedbl"]="\"",
+ ["bracketleft"]="[",
+ ["bracketright"]="]",
+ ["braceleft"]="{",
+ ["braceright"]="}",
+ ["grave"]="`",
+ ["asciitilde"]="~"
+}
 
 ---- Define functions ----
 
@@ -184,6 +218,16 @@ while true do
 		geany.navigate("line", -1 * n)
 	elseif char == "l" then
 		geany.navigate("char", n)
+	elseif symbolKeys[char] == "^" then
+		for i=2, n do
+			geany.navigate("line", -1)
+		end
+		geany.navigate("edge", -1)
+	elseif symbolKeys[char] == "$" then
+		for i=2, n do
+			geany.navigate("line", 1)
+		end
+		geany.navigate("edge", 1)
 	elseif char == "e" then
 		for i = 1, n do
 			navWordEndRight(false)
@@ -208,12 +252,34 @@ while true do
 		for i = 1, n do
 			navWORDStartLeft(false)
 		end
-	elseif char == "f" then
-		searchChar = geany.keygrab(prompt..char)
+	elseif char == "f" or char == "F" then
+		searchChar = geany.keygrab("Please enter the character to find: ")
+		-- translate descriptive character codes into symbols
+		if symbolKeys[searchChar] then searchChar = symbolKeys[searchChar] end
+		debugMessage("Search char is "..searchChar)
 		if searchChar:len() == 1 then
-			newIndex = geany.text():find(searchChar, geany.caret(), true)
-			if newIndex then geany.caret(newIndex) end
+			for i = 1, n do
+				if char == "f" then
+					local newIndex = geany.text():find(searchChar, geany.caret()+2, true)
+					if newIndex then
+						geany.caret(newIndex-1)
+					else
+						debugMessage("Could not find "..searchChar.." in document after position "..geany.caret())
+					end
+				else
+					local newIndex = geany.text():reverse():find(searchChar, geany.length() - geany.caret() + 1, true)
+					if newIndex then
+						geany.caret(geany.length()-newIndex)
+					else
+						debugMessage("Could not find "..searchChar.." in document before position "..geany.caret())
+					end
+				end
+				debugMessage("Caret is now at "..geany.caret())
+			end
 		end
+	elseif char == "G" then
+		geany.caret(geany.length())
+		geany.navigate("edge", -1)
 
 	-- clipboard
 	elseif char == "y" then
