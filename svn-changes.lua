@@ -120,8 +120,8 @@ local function getRevisionOptions()
 	-- execute
 
 	local resultIndex,resultTable = svnDialog:run()
-	debugMessage("Result ["..resultIndex.."]: ["..buttons[resultIndex].."]")
 	if not (resultIndex == 2) then return nil end
+	debugMessage("Result ["..resultIndex.."]: ["..buttons[resultIndex].."]")
 
 	local preferences = {}
 	if resultTable["fileType"] == "currentFile" then
