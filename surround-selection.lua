@@ -20,7 +20,7 @@ if selectedText == nil then return
 else debugMessage("Selected text was "..selectedText)
 end
 
-local surrounds = { [1]="( )", [2]="[ ]", [3]="{ }", [4]="< >", [5]="<tag> </tag>", [6]="\" \"" }
+local surrounds = { [1]="( )", [2]="[ ]", [3]="{ }", [4]="< >", [5]="<tag> </tag>", [6]="\" \"", [7]="' '" }
 local surround = geany.choose("What would you like to surround the selected text with?", surrounds)
 if surround == nil then return
 else
