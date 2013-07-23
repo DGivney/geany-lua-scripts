@@ -11,6 +11,9 @@
 -- v0.6 - rearranged to show revision list before choosing the revision
 -- range type; fixed 'show more' handling for multiline commit comments.
 -- v0.7 - allow selection of ending revision; fix revision list width.
+-- v0.8 - add support for searching; add committer name and date to
+-- revision list.
+--
 -- (c) 2013 by Carl Antuar.
 -- Distribution is permitted under the terms of the GPLv3
 -- or any later version.
@@ -19,6 +22,7 @@
 
 debugEnabled = false
 _PREFERENCE_FILENAME = "file"
+_PREFERENCE_SEARCHSTRING = "searchString"
 _PREFERENCE_SCAN_SIZE = "scanCount"
 _PREFERENCE_DIFF_VIEWER = "diffViewer"
 _SPACER = "\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
@@ -35,8 +39,14 @@ function getLogCommand(filename)
 	return command
 end
 
-function getQuickLogCommand(filename, revisionCount)
-	local command = "svn log "..filename.." | head -"..(revisionCount * 4).." | sed -e 's/^r\\([0-9]\\+\\) |.*/\\1 /g' | tr -d '\\n' | sed -e 's/--\\+/\\n/g' | tail -n +2"
+function getQuickLogCommand(filename, revisionCount, searchString)
+	local _REGEXP_REVISION = "^r\\([0-9]\\+\\)"
+	local _REGEXP_USERNAME = "\\([^ ]\\+\\)"
+	local _REGEXP_DATE = "\\([0-9]\\+[-/][0-9]\\+[-/][0-9]\\+\\)"
+	local command = "svn log "..filename.." | head -"..(revisionCount * 4).." | sed -e 's/".._REGEXP_REVISION.." | ".._REGEXP_USERNAME.." | ".._REGEXP_DATE..".*/\\1 \\2 \\3 /g' | tr -d '\\n' | sed -e 's/--\\+/\\n/g' | tail -n +2"
+	if searchString then
+		command = command.." | grep '"..searchString.."'"
+	end
 	debugMessage("Log command is "..command)
 	return command
 end
@@ -100,7 +110,8 @@ local function getRevisionOptions()
 
 	svnDialog:hr()
 
-	-- choose initial scan size
+	-- choose search parameters
+	svnDialog:text("searchString", "", "Search for text (optional):")
 	svnDialog:text("scanCount", "30", "Initial # of revisions to scan  \n(0 = unlimited)")
 
 	svnDialog:hr()
@@ -138,6 +149,10 @@ local function getRevisionOptions()
 		preferences[_PREFERENCE_FILENAME] = resultTable["customFile"]
 	end
 
+	if resultTable["searchString"] then
+		preferences[_PREFERENCE_SEARCHSTRING] = resultTable["searchString"]
+		preferences[_PREFERENCE_SEARCHSTRING] = string.gsub(preferences[_PREFERENCE_SEARCHSTRING], "'", "\\'", string.len(resultTable["searchString"]))
+	end
 	preferences[_PREFERENCE_SCAN_SIZE] = resultTable["scanCount"]
 
 	if resultTable["diffViewer"] == "customDiffViewer" then
@@ -153,13 +168,13 @@ local function getRevisionOptions()
 	return preferences
 end
 
-local function pickRevision(filename, scanCount, prompt)
+local function pickRevision(filename, scanCount, searchString, prompt)
 	local revision
 	local increaseScanItem = "Show more.."
 	local previousRevisionCount = 0
 	if not prompt then prompt = "Please choose the starting revision to review".._SPACER end
 	repeat
-		local revisionCount,revisions = getOutputLines(getQuickLogCommand(filename, scanCount))
+		local revisionCount,revisions = getOutputLines(getQuickLogCommand(filename, scanCount, searchString))
 		if not (revisionCount == previousRevisionCount) then
 			debugMessage("Adding 'Show more' item to revision list")
 			revisions[revisionCount + 1] = increaseScanItem
@@ -198,10 +213,11 @@ if debugEnabled then
 end
 
 local filename = preferences[_PREFERENCE_FILENAME]
+local searchString = preferences[_PREFERENCE_SEARCHSTRING]
 local scanCount = preferences[_PREFERENCE_SCAN_SIZE]
 local diffViewer = preferences[_PREFERENCE_DIFF_VIEWER]
 
-local revision = pickRevision(filename, scanCount)
+local revision = pickRevision(filename, scanCount, searchString)
 if not revision then return end
 
 local revisionTypes = {[1]="Single revision", [2]="All changes since revision", [3]="Choose end revision", [4]="Custom"}
@@ -213,7 +229,7 @@ debugMessage("Revision type is "..revisionType)
 if revisionType == revisionTypes[2] then
 	revision = (revision - 1)..":HEAD"
 elseif revisionType == revisionTypes[3] then
-	local endRevision = pickRevision(filename, scanCount, "Please choose the end revision".._SPACER)
+	local endRevision = pickRevision(filename, scanCount, searchString, "Please choose the end revision".._SPACER)
 	if not endRevision then return end
 	revision = (revision - 1)..":"..endRevision
 elseif revisionType == revisionTypes[4] then
