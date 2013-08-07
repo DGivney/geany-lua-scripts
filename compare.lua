@@ -4,6 +4,8 @@
 --
 -- v0.2 - Changed to use io.popen to retrieve command output,
 -- instead of piping to temporary file.
+-- 0.3 - Changed to show full name of current file
+-- when choosing file for comparison.
 -- (c) 2013 by Carl Antuar.
 -- Distribution is permitted under the terms of the GPLv2
 -- or any later version.
@@ -42,7 +44,7 @@ if geany.fileinfo().changed then
 	io.close(file1Handle)
 end
 
-local msg = "Which document do you want to compare "..geany.fileinfo().name.." to?\n"
+local msg = "Which document do you want to compare "..geany.filename().." to?\n"
 local file2Index = 1
 local files = {}
 for filename in geany.documents()
