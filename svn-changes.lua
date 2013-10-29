@@ -27,11 +27,9 @@ _PREFERENCE_SCAN_SIZE = "scanCount"
 _PREFERENCE_DIFF_VIEWER = "diffViewer"
 _SPACER = "\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
 
----- Define utility functions ----
+---- Define functions ----
 
-function debugMessage(message)
-	if debugEnabled then geany.message("DEBUG", message) end
-end
+dofile(geany.appinfo()["scriptdir"]..geany.dirsep.."util.lua")
 
 function getLogCommand(filename)
 	local command = "svn log "..filename.." | sed -e 's/^r\\([0-9]\\+\\) |.*/\\1 /g' | tr -d '\\n' | sed -e 's/--\\+/\\n/g' | tail -n +2"
@@ -61,30 +59,6 @@ function getSVNDiffCommand(revision, filename, diffViewer)
 	debugMessage("Diff command is "..command)
 	return command
 end
-
-function getOutputLines(command)
-	local lines = {}
-	local lineCount = 0
-	local result = io.popen(command, 'r')
-	if result == nil then
-		geany.message("ERROR", "Failed to get output of command ["..command.."]")
-		return
-	end
-	for line in result:lines() do
-		-- need to index from 1 to show up properly in choose dialog
-		lineCount = lineCount + 1
-		lines[lineCount] = line
-	end
-	result:close()
-	debugMessage("Returning "..lineCount.." output lines")
-	return lineCount,lines
-end
-
-function isProjectOpen()
-	return not (geany.appinfo().project == nil)
-end
-
----- Define script-specific functions ----
 
 local function addDiffViewer(dialogBox, application)
 	if os.execute(application.." --version") == 0 then
