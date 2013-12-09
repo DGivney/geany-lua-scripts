@@ -62,7 +62,7 @@ end
 
 local function addDiffViewer(dialogBox, application)
 	if os.execute(application.." --version") == 0 then
-		dialogBox:radio("diffViewer", application, application)
+		dialogBox:option("diffViewer", application, application)
 	end
 end
 
@@ -91,7 +91,7 @@ local function getRevisionOptions()
 	svnDialog:hr()
 
 	-- choose diff viewer
-	svnDialog:group("diffViewer", "diff", "Diff viewer")
+	svnDialog:select("diffViewer", "diff", "Diff viewer")
 	addDiffViewer(svnDialog, "diff")
 	addDiffViewer(svnDialog, "meld")
 	addDiffViewer(svnDialog, "kompare")
@@ -99,8 +99,8 @@ local function getRevisionOptions()
 	addDiffViewer(svnDialog, "diffuse")
 	addDiffViewer(svnDialog, "tkdiff")
 	addDiffViewer(svnDialog, "opendiff")
-	svnDialog:radio("diffViewer", "customDiffViewer", "Other:")
-	svnDialog:text("customDiffViewer", "", "")
+	svnDialog:option("diffViewer", "customDiffViewer", "Other...")
+	svnDialog:text("customDiffViewer", "", "Custom diff viewer")
 
 	-- execute
 
