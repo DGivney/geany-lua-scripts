@@ -213,10 +213,9 @@ end
 debugMessage("Revision was "..revision)
 
 if diffViewer == "diff" then
-	local tempFile = os.tmpname()
-	debugMessage("Generating diff into "..tempFile)
-	os.execute(getSVNDiffCommand(revision, filename, diffViewer).." > "..tempFile)
-	geany.open(tempFile)
+	local lineCount,lines = getOutputLines(getSVNDiffCommand(revision, filename, diffViewer))
+	geany.newfile("Revision "..revision)
+	geany.selection(table.concat(lines, "\n"))
 else
 	geany.timeout(0)
 	os.execute(getSVNDiffCommand(revision, filename, diffViewer))
