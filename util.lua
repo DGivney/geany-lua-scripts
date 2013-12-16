@@ -6,6 +6,8 @@
 -- Distribution is permitted under the terms of the GPLv3
 -- or any later version.
 
+_SPACER = "\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
+
 function debugMessage(message)
 	if debugEnabled then geany.message("DEBUG", message) end
 end

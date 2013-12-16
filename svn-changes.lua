@@ -25,7 +25,6 @@ _PREFERENCE_FILENAME = "file"
 _PREFERENCE_SEARCHSTRING = "searchString"
 _PREFERENCE_SCAN_SIZE = "scanCount"
 _PREFERENCE_DIFF_VIEWER = "diffViewer"
-_SPACER = "\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
 
 ---- Define functions ----
 
