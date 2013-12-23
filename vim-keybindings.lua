@@ -277,6 +277,12 @@ while true do
 				debugMessage("Caret is now at "..geany.caret())
 			end
 		end
+	elseif char == "g" then
+		local n2,char2 = getCharWithRepeats(prompt..n..char)
+		debugMessage("Sub-command: "..n2.." repetition(s) of "..char2)
+		if char2 == "g" then
+			geany.caret(0)
+		end
 	elseif char == "G" then
 		geany.caret(geany.length())
 		geany.navigate("edge", -1)
