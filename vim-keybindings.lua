@@ -277,11 +277,41 @@ while true do
 				debugMessage("Caret is now at "..geany.caret())
 			end
 		end
+	elseif char == "g" then
+		local n2,char2 = getCharWithRepeats(prompt..n..char)
+		debugMessage("Sub-command: "..n2.." repetition(s) of "..char2)
+		if char2 == "g" then
+			geany.caret(0)
+		end
 	elseif char == "G" then
 		geany.caret(geany.length())
 		geany.navigate("edge", -1)
 
 	-- clipboard
+	elseif char == "c" then
+		local n2,char2 = getCharWithRepeats(prompt..n..char)
+		debugMessage("Sub-command: "..n2.." repetition(s) of "..char2)
+		n = n * n2
+
+		if string.find(keyGroups["nav"], char2) then
+			selectTextForCommand(n, char2)
+		elseif char2 == "c" then
+			selectTextForCommand(n-1, "j")
+			geany.navigate("line", -1, true)
+			geany.navigate("edge", 1, true)
+		end
+
+		debugMessage("Replacing ["..geany.selection().."]")
+		geany.cut()
+		return
+	elseif char == "C" then
+		selectTextForCommand(n-1, "j")
+		geany.navigate("line", -1, true)
+		geany.navigate("edge", 1, true)
+
+		debugMessage("Replacing ["..geany.selection().."]")
+		geany.cut()
+		return
 	elseif char == "y" then
 		local n2,char2 = getCharWithRepeats(prompt..n..char)
 		debugMessage("Sub-command: "..n2.." repetition(s) of "..char2)
