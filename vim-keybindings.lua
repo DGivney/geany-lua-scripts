@@ -84,6 +84,16 @@ local function vimNavigate(n, char, extend)
 		geany.navigate("line", -1 * (n+1), true)
 	elseif char == "l" then
 		geany.navigate("char", n, true)
+	else
+		for i = 1, n do
+			if char == "e" then navWordEndRight(true)
+			elseif char == "E" then navWORDEndRight(true)
+			elseif char == "w" then navWordStartRight(true)
+			elseif char == "W" then navWORDStartRight(true)
+			elseif char == "b" then navWordStartLeft(true)
+			elseif char == "B" then navWORDStartLeft(true)
+			end
+		end
 	end
 end
 
@@ -95,8 +105,7 @@ while true do
 	debugMessage("Command was "..n..char)
 
 	-- switching to edit mode (exiting script)
-	if char == "Escape" then
-		if geany.confirm("Escape", "Do you want to exit Vim mode?", true) then return end
+	if char == "Escape" then return
 	elseif char == "i" then return
 	elseif char == "I" then
 		geany.navigate("edge", -1)
