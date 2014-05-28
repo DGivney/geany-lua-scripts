@@ -13,10 +13,10 @@ dofile(geany.appinfo()["scriptdir"]..geany.dirsep.."util.lua")
 
 ---- Start execution ----
 local searchDir = geany.appinfo()["project"]["base"]
-local indexFile = geany.appinfo()["scriptdir"]..geany.dirsep.."support"..geany.dirsep..geany.appinfo()["project"]["name"].."-java-imports.index"
+local indexFile = getSupportDir()..geany.dirsep..geany.appinfo()["project"]["name"].."-java-imports.index"
 
 debugMessage("Base search directory is "..searchDir)
-debugMessage("Support directory is "..indexFile)
+debugMessage("Index file is "..indexFile)
 local searchCommand = "find "..searchDir.." -iname '*.java' | xargs grep -h '^import\\s\\+\\S\\+\\s*;' |grep -o '\\([a-zA-Z0-9]\\+\\.\\)\\+[a-zA-Z0-9*]\\+' |sort |uniq"
 if debugEnabled then getOutputLines(searchCommand) end
 
