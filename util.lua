@@ -146,3 +146,36 @@ function navWORDStartLeft(extend)
 	until isWhitespace(previousCharCode) or atDocumentEdge()
 end
 
+function getListCommand(dirname, fileFilter)
+	return "ls -t "..dirname..geany.dirsep..fileFilter
+end
+
+function ensureDirExists(dirname)
+	if not (os.execute(getListCommand(dirname, "")) == 0) then
+		debugMessage("Creating directory "..dirname)
+		os.execute("mkdir -p "..dirname)
+	end
+end
+
+function getSupportDir()
+	local dir = geany.appinfo().scriptdir..geany.dirsep.."support"
+	ensureDirExists(dir)
+	return dir
+end
+
+function getFileContents(filename)
+	local stringBuilder = ""
+	for line in io.lines(filename) do
+		if not (stringBuilder == "") then stringBuilder = stringBuilder.."\n" end
+		stringBuilder = stringBuilder..line
+	end
+	return stringBuilder
+end
+
+function setFileContents(filename, contents)
+	local fileHandle = io.open(filename, "w")
+	fileHandle:write(contents)
+	fileHandle:flush()
+	fileHandle:close()
+end
+
