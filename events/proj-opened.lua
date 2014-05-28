@@ -17,7 +17,8 @@ local indexFile = geany.appinfo()["scriptdir"]..geany.dirsep.."support"..geany.d
 
 debugMessage("Base search directory is "..searchDir)
 debugMessage("Support directory is "..indexFile)
-local searchCommand = "find "..searchDir.." -iname '*.java' | xargs grep -h '^import\\s\\+\\S\\+\\s*;' |grep -o '\\([a-zA-Z]\\+\\.\\)\\+[a-zA-Z*]\\+'"
+local searchCommand = "find "..searchDir.." -iname '*.java' | xargs grep -h '^import\\s\\+\\S\\+\\s*;' |grep -o '\\([a-zA-Z0-9]\\+\\.\\)\\+[a-zA-Z0-9*]\\+' |sort |uniq"
+if debugEnabled then getOutputLines(searchCommand) end
 
 local status = os.execute(searchCommand.." > '"..indexFile.."' &")
 if not status == 0 then geany.message("ERROR", "Command returned "..status) end
