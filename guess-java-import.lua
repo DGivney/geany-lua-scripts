@@ -26,6 +26,10 @@ if selectedText == nil or selectedText == "" then
 end
 
 debugMessage("Class name is "..selectedText)
+if geany.text():find("\nimport%s*[a-zA-Z0-9.]+"..selectedText.."%s*;", 1, false) then
+	debugMessage("Already imported "..selectedText)
+	return
+end
 
 local searchCommand = "cat "..getSupportDir()..geany.dirsep.."*.index |sort |uniq | grep '\\b"..selectedText.."\\b'"
 local count,imports = getOutputLines(searchCommand)
@@ -34,7 +38,7 @@ local import = geany.choose("Is one of these the class you want?", imports)
 if not import then return end
 debugMessage("Importing "..import)
 
-local startIndex,stopIndex = geany.text():find("^package\s")
+local startIndex,stopIndex = geany.text():find("package%s")
 if not startIndex then startIndex = 1 end
 
 local oldCursorPos = geany.caret()
