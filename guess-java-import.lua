@@ -19,22 +19,26 @@ debugMessage("Selected text: ["..selectedText.."]")
 if selectedText == nil or selectedText == "" then
 	local oldCursorPos = geany.caret()
 	debugMessage("No text selected; seeking current word for position "..oldCursorPos)
-	navWordStartLeft(false)
-	navWordEndRight(true)
-	selectedText = geany.selection()
+	geany.navigate("word", -1, false)
+	geany.navigate("word", 1, true)
+	selectedText = geany.selection():gsub("^%s*(.-)%s*$", "%1")
 	geany.caret(oldCursorPos)
 end
 
-debugMessage("Class name is "..selectedText)
-if geany.text():find("\nimport%s*[a-zA-Z0-9.]+"..selectedText.."%s*;", 1, false) then
-	debugMessage("Already imported "..selectedText)
+debugMessage("Class name is ["..selectedText.."]")
+if geany.text():find("\nimport%s*[a-zA-Z0-9.]+"..selectedText.."%s*;") then
+	geany.message("Already imported "..selectedText)
 	return
 end
 
 local searchCommand = "cat "..getSupportDir()..geany.dirsep.."*.index |sort |uniq | grep '\\b"..selectedText.."\\b'"
 local count,imports = getOutputLines(searchCommand)
 
-local import = geany.choose("Is one of these the class you want?", imports)
+if count > 0 then
+	import = geany.choose("Is one of these the class you want?", imports)
+else
+	geany.message("Couldn't guess import statement for ["..selectedText.."]")
+end
 if not import then return end
 debugMessage("Importing "..import)
 
