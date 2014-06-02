@@ -4,6 +4,8 @@
 --
 -- v0.2 - Changed to use io.popen to retrieve command output,
 -- instead of piping to temporary file.
+-- 0.3 - Changed to show full name of current file
+-- when choosing file for comparison.
 -- (c) 2013 by Carl Antuar.
 -- Distribution is permitted under the terms of the GPLv2
 -- or any later version.
@@ -11,9 +13,7 @@
 -- Define functions --
 debugEnabled = false
 
-function debugMessage(message)
-	if debugEnabled then geany.message("DEBUG", message) end
-end
+dofile(geany.appinfo()["scriptdir"]..geany.dirsep.."util.lua")
 
 function getDiffCommand(file1, file2)
 	if os.execute("meld --version") == 0 then return "meld"
@@ -42,7 +42,13 @@ if geany.fileinfo().changed then
 	io.close(file1Handle)
 end
 
-local msg = "Which document do you want to compare "..geany.fileinfo().name.." to?\n"
+local msg
+if geany.filename() then
+	msg = "Which document do you want to compare "..geany.filename().." to?"
+else
+	msg = "Which document do you want to compare "..geany.fileinfo().name.." to?"
+end
+msg = msg.._SPACER
 local file2Index = 1
 local files = {}
 for filename in geany.documents()

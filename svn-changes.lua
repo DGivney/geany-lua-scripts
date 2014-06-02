@@ -25,13 +25,10 @@ _PREFERENCE_FILENAME = "file"
 _PREFERENCE_SEARCHSTRING = "searchString"
 _PREFERENCE_SCAN_SIZE = "scanCount"
 _PREFERENCE_DIFF_VIEWER = "diffViewer"
-_SPACER = "\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
 
----- Define utility functions ----
+---- Define functions ----
 
-function debugMessage(message)
-	if debugEnabled then geany.message("DEBUG", message) end
-end
+dofile(geany.appinfo()["scriptdir"]..geany.dirsep.."util.lua")
 
 function getLogCommand(filename)
 	local command = "svn log "..filename.." | sed -e 's/^r\\([0-9]\\+\\) |.*/\\1 /g' | tr -d '\\n' | sed -e 's/--\\+/\\n/g' | tail -n +2"
@@ -62,33 +59,9 @@ function getSVNDiffCommand(revision, filename, diffViewer)
 	return command
 end
 
-function getOutputLines(command)
-	local lines = {}
-	local lineCount = 0
-	local result = io.popen(command, 'r')
-	if result == nil then
-		geany.message("ERROR", "Failed to get output of command ["..command.."]")
-		return
-	end
-	for line in result:lines() do
-		-- need to index from 1 to show up properly in choose dialog
-		lineCount = lineCount + 1
-		lines[lineCount] = line
-	end
-	result:close()
-	debugMessage("Returning "..lineCount.." output lines")
-	return lineCount,lines
-end
-
-function isProjectOpen()
-	return not (geany.appinfo().project == nil)
-end
-
----- Define script-specific functions ----
-
 local function addDiffViewer(dialogBox, application)
 	if os.execute(application.." --version") == 0 then
-		dialogBox:radio("diffViewer", application, application)
+		dialogBox:option("diffViewer", application, application)
 	end
 end
 
@@ -117,7 +90,7 @@ local function getRevisionOptions()
 	svnDialog:hr()
 
 	-- choose diff viewer
-	svnDialog:group("diffViewer", "diff", "Diff viewer")
+	svnDialog:select("diffViewer", "diff", "Diff viewer")
 	addDiffViewer(svnDialog, "diff")
 	addDiffViewer(svnDialog, "meld")
 	addDiffViewer(svnDialog, "kompare")
@@ -125,8 +98,8 @@ local function getRevisionOptions()
 	addDiffViewer(svnDialog, "diffuse")
 	addDiffViewer(svnDialog, "tkdiff")
 	addDiffViewer(svnDialog, "opendiff")
-	svnDialog:radio("diffViewer", "customDiffViewer", "Other:")
-	svnDialog:text("customDiffViewer", "", "")
+	svnDialog:option("diffViewer", "customDiffViewer", "Other...")
+	svnDialog:text("customDiffViewer", "", "Custom diff viewer")
 
 	-- execute
 
@@ -239,10 +212,9 @@ end
 debugMessage("Revision was "..revision)
 
 if diffViewer == "diff" then
-	local tempFile = os.tmpname()
-	debugMessage("Generating diff into "..tempFile)
-	os.execute(getSVNDiffCommand(revision, filename, diffViewer).." > "..tempFile)
-	geany.open(tempFile)
+	local lineCount,lines = getOutputLines(getSVNDiffCommand(revision, filename, diffViewer))
+	geany.newfile("Revision "..revision)
+	geany.selection(table.concat(lines, "\n"))
 else
 	geany.timeout(0)
 	os.execute(getSVNDiffCommand(revision, filename, diffViewer))

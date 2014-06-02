@@ -7,10 +7,14 @@
 -- Distribution is permitted under the terms of the GPLv3
 -- or any later version.
 
+---- Import library ----
+
+dofile(geany.appinfo()["scriptdir"]..geany.dirsep.."util.lua")
+
 ---- Define constants
 debugEnabled = false
-keyGroups = { ["nav"]="hjklwe", ["lower"]="abcdefghijklmnopqrstuvwxyz", ["upper"]="ABCDEFGHIJKLMNOPQRSTUVWXYZ", ["whitespace"]=" \t\n\r" }
-symbolKeys = {
+KEY_GROUPS["nav"] = "hjklwWeEbB"
+SYMBOL_KEYS = {
  ["numbersign"]="#",
  ["slash"]="/",
  ["exclam"]="!",
@@ -47,25 +51,6 @@ symbolKeys = {
 
 ---- Define functions ----
 
-function atDocumentEdge()
-	return geany.caret() == 1 or geany.caret() == geany.length()
-end
-
-function isLowerCase(charCode)
-	return string.find(keyGroups["lower"], string.char(charCode), 1, true)
-end
-
-function isUpperCase(charCode)
-	return string.find(keyGroups["upper"], string.char(charCode), 1, true)
-end
-
-function isWhitespace(charCode)
-	return string.find(keyGroups["whitespace"], string.char(charCode), 1, true)
-end
-
-function debugMessage(message)
-	if debugEnabled then geany.message("DEBUG", message) end
-end
 
 local function getCharWithRepeats(prompt)
 	local n = 0
@@ -80,99 +65,13 @@ local function getCharWithRepeats(prompt)
 	return n,char
 end
 
--- Navigating by word parts almost matches Vim word navigation, except:
--- - if the cursor starts on whitespace, it goes to the closer end of the next word, not the further end
--- - if a word is camel-cased, it steps through each segment.
-local function navWordEndRight(extend)
-	if extend then geany.select() end
-	debugMessage("Character at caret is "..geany.byte().." ["..string.char(geany.byte()).."]")
-	repeat
-		geany.navigate("part", 1, extend)
-		local charCode, previousCharCode = geany.byte(), geany.byte(geany.caret() - 1)
-		debugMessage("Current char is "..charCode.." ["..string.char(charCode).."]")
-		debugMessage("Previous char is "..previousCharCode.." ["..string.char(previousCharCode).."]")
-	until not isWhitespace(previousCharCode) and not (isUpperCase(charCode) and isLowerCase(previousCharCode)) or atDocumentEdge()
-end
-
-local function navWordEndLeft(extend)
-	if extend then geany.select() end
-	debugMessage("Character at caret is "..geany.byte().." ["..string.char(geany.byte()).."]")
-	repeat
-		geany.navigate("part", -1, extend)
-		local charCode, previousCharCode = geany.byte(), geany.byte(geany.caret() - 1)
-		debugMessage("Current char is "..charCode.." ["..string.char(charCode).."]")
-		debugMessage("Previous char is "..previousCharCode.." ["..string.char(previousCharCode).."]")
-	until not isWhitespace(previousCharCode) and not (isUpperCase(charCode) and isLowerCase(previousCharCode)) or atDocumentEdge()
-end
-
-local function navWordStartRight(extend)
-	if extend then geany.select() end
-	debugMessage("Character at caret is "..geany.byte().." ["..string.char(geany.byte()).."]")
-	repeat
-		geany.navigate("part", 1, extend)
-		local charCode, previousCharCode = geany.byte(), geany.byte(geany.caret() - 1)
-		debugMessage("Current char is "..charCode.." ["..string.char(charCode).."]")
-		debugMessage("Previous char is "..previousCharCode.." ["..string.char(previousCharCode).."]")
-	until not isWhitespace(charCode) and not (isUpperCase(charCode) and isLowerCase(previousCharCode)) or atDocumentEdge()
-end
-
-local function navWordStartLeft(extend)
-	if extend then geany.select() end
-	debugMessage("Character at caret is "..geany.byte().." ["..string.char(geany.byte()).."]")
-	repeat
-		geany.navigate("part", -1, extend)
-		local charCode, previousCharCode = geany.byte(), geany.byte(geany.caret() - 1)
-		debugMessage("Current char is "..charCode.." ["..string.char(charCode).."]")
-		debugMessage("Previous char is "..previousCharCode.." ["..string.char(previousCharCode).."]")
-	until not isWhitespace(charCode) and not (isUpperCase(charCode) and isLowerCase(previousCharCode)) or atDocumentEdge()
-end
-
-local function navWORDEndRight(extend)
-	if extend then geany.select() end
-	debugMessage("Character at caret is "..geany.byte().." ["..string.char(geany.byte()).."]")
-	repeat
-		geany.navigate("part", 1, extend)
-		local charCode, previousCharCode = geany.byte(), geany.byte(geany.caret() - 1)
-		debugMessage("Current char is "..charCode.." ["..string.char(charCode).."]")
-		debugMessage("Previous char is "..previousCharCode.." ["..string.char(previousCharCode).."]")
-	until isWhitespace(charCode) or atDocumentEdge()
-end
-
-local function navWORDEndLeft(extend)
-	if extend then geany.select() end
-	debugMessage("Character at caret is "..geany.byte().." ["..string.char(geany.byte()).."]")
-	repeat
-		geany.navigate("part", -1, extend)
-		local charCode, previousCharCode = geany.byte(), geany.byte(geany.caret() - 1)
-		debugMessage("Current char is "..charCode.." ["..string.char(charCode).."]")
-		debugMessage("Previous char is "..previousCharCode.." ["..string.char(previousCharCode).."]")
-	until isWhitespace(charCode) or atDocumentEdge()
-end
-
-local function navWORDStartRight(extend)
-	if extend then geany.select() end
-	debugMessage("Character at caret is "..geany.byte().." ["..string.char(geany.byte()).."]")
-	repeat
-		geany.navigate("part", 1, extend)
-		local charCode, previousCharCode = geany.byte(), geany.byte(geany.caret() - 1)
-		debugMessage("Current char is "..charCode.." ["..string.char(charCode).."]")
-		debugMessage("Previous char is "..previousCharCode.." ["..string.char(previousCharCode).."]")
-	until isWhitespace(previousCharCode) or atDocumentEdge()
-end
-
-local function navWORDStartLeft(extend)
-	if extend then geany.select() end
-	debugMessage("Character at caret is "..geany.byte().." ["..string.char(geany.byte()).."]")
-	repeat
-		geany.navigate("part", -1, extend)
-		local charCode, previousCharCode = geany.byte(), geany.byte(geany.caret() - 1)
-		debugMessage("Current char is "..charCode.." ["..string.char(charCode).."]")
-		debugMessage("Previous char is "..previousCharCode.." ["..string.char(previousCharCode).."]")
-	until isWhitespace(previousCharCode) or atDocumentEdge()
-end
-
-local function selectTextForCommand(n, char)
-	debugMessage("Selecting text for "..n.." repetitions of "..char)
+local function vimNavigate(n, char, extend)
+	if not extend then extend = true end
+	if extend then
+		debugMessage("Selecting text for "..n.." repetitions of "..char)
+	else
+		debugMessage("Navigating "..n.." repetitions of "..char)
+	end
 	geany.select()
 	if char == "h" then
 		geany.navigate("char", -1 * n, true)
@@ -185,6 +84,16 @@ local function selectTextForCommand(n, char)
 		geany.navigate("line", -1 * (n+1), true)
 	elseif char == "l" then
 		geany.navigate("char", n, true)
+	else
+		for i = 1, n do
+			if char == "e" then navWordEndRight(true)
+			elseif char == "E" then navWORDEndRight(true)
+			elseif char == "w" then navWordStartRight(true)
+			elseif char == "W" then navWORDStartRight(true)
+			elseif char == "b" then navWordStartLeft(true)
+			elseif char == "B" then navWORDStartLeft(true)
+			end
+		end
 	end
 end
 
@@ -196,8 +105,7 @@ while true do
 	debugMessage("Command was "..n..char)
 
 	-- switching to edit mode (exiting script)
-	if char == "Escape" then
-		if geany.confirm("Escape", "Do you want to exit Vim mode?", true) then return end
+	if char == "Escape" then return
 	elseif char == "i" then return
 	elseif char == "I" then
 		geany.navigate("edge", -1)
@@ -218,12 +126,12 @@ while true do
 		geany.navigate("line", -1 * n)
 	elseif char == "l" then
 		geany.navigate("char", n)
-	elseif symbolKeys[char] == "^" then
+	elseif SYMBOL_KEYS[char] == "^" then
 		for i=2, n do
 			geany.navigate("line", -1)
 		end
 		geany.navigate("edge", -1)
-	elseif symbolKeys[char] == "$" then
+	elseif SYMBOL_KEYS[char] == "$" then
 		for i=2, n do
 			geany.navigate("line", 1)
 		end
@@ -253,45 +161,75 @@ while true do
 			navWORDStartLeft(false)
 		end
 	elseif char == "f" or char == "F" then
-		searchChar = geany.keygrab("Please enter the character to find: ")
+		searchText = geany.keygrab("Please enter the character to find: ")
 		-- translate descriptive character codes into symbols
-		if symbolKeys[searchChar] then searchChar = symbolKeys[searchChar] end
-		debugMessage("Search char is "..searchChar)
-		if searchChar:len() == 1 then
+		if SYMBOL_KEYS[searchText] then searchText = SYMBOL_KEYS[searchText] end
+		debugMessage("Search char is "..searchText)
+		if searchText:len() == 1 then
 			for i = 1, n do
 				if char == "f" then
-					local newIndex = geany.text():find(searchChar, geany.caret()+2, true)
+					local newIndex = geany.text():find(searchText, geany.caret()+2, true)
 					if newIndex then
 						geany.caret(newIndex-1)
 					else
-						debugMessage("Could not find "..searchChar.." in document after position "..geany.caret())
+						debugMessage("Could not find "..searchText.." in document after position "..geany.caret())
 					end
 				else
-					local newIndex = geany.text():reverse():find(searchChar, geany.length() - geany.caret() + 1, true)
+					local newIndex = geany.text():reverse():find(searchText, geany.length() - geany.caret() + 1, true)
 					if newIndex then
 						geany.caret(geany.length()-newIndex)
 					else
-						debugMessage("Could not find "..searchChar.." in document before position "..geany.caret())
+						debugMessage("Could not find "..searchText.." in document before position "..geany.caret())
 					end
 				end
 				debugMessage("Caret is now at "..geany.caret())
 			end
+		end
+	elseif char == "g" then
+		local n2,char2 = getCharWithRepeats(prompt..n..char)
+		debugMessage("Sub-command: "..n2.." repetition(s) of "..char2)
+		if char2 == "g" then
+			geany.caret(0)
 		end
 	elseif char == "G" then
 		geany.caret(geany.length())
 		geany.navigate("edge", -1)
 
 	-- clipboard
+	elseif char == "c" then
+		local n2,char2 = getCharWithRepeats(prompt..n..char)
+		debugMessage("Sub-command: "..n2.." repetition(s) of "..char2)
+		n = n * n2
+
+		if string.find(KEY_GROUPS["nav"], char2) then
+			vimNavigate(n, char2)
+		elseif char2 == "c" then
+			vimNavigate(n-1, "j")
+			geany.navigate("line", -1, true)
+			geany.navigate("edge", 1, true)
+		end
+
+		debugMessage("Replacing ["..geany.selection().."]")
+		geany.cut()
+		return
+	elseif char == "C" then
+		vimNavigate(n-1, "j")
+		geany.navigate("line", -1, true)
+		geany.navigate("edge", 1, true)
+
+		debugMessage("Replacing ["..geany.selection().."]")
+		geany.cut()
+		return
 	elseif char == "y" then
 		local n2,char2 = getCharWithRepeats(prompt..n..char)
 		debugMessage("Sub-command: "..n2.." repetition(s) of "..char2)
 		n = n * n2
 
 		local oldCaret = geany.caret()
-		if string.find(keyGroups["nav"], char2) then
-			selectTextForCommand(n, char2)
+		if string.find(KEY_GROUPS["nav"], char2) then
+			vimNavigate(n, char2)
 		elseif char2 == "y" then
-			selectTextForCommand(n-1, "j")
+			vimNavigate(n-1, "j")
 		end
 
 		debugMessage("Copying ["..geany.selection().."]")
@@ -302,8 +240,8 @@ while true do
 		debugMessage("Sub-command: "..n2.." repetitions of "..char2)
 		n = n * n2
 
-		if string.find(keyGroups["nav"], char2) then
-			selectTextForCommand(n, char2)
+		if string.find(KEY_GROUPS["nav"], char2) then
+			vimNavigate(n, char2)
 		elseif char2 == "d" then
 			geany.navigate("edge", -1)
 			geany.navigate("line", n, true)
