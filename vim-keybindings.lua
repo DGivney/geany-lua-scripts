@@ -1,8 +1,6 @@
 #! /usr/bin/env lua
 -- Provide a subset of vim keybindings.
 --
--- v0.1
--- v0.2 - added commands: fF^$
 -- (c) 2013 by Carl Antuar.
 -- Distribution is permitted under the terms of the GPLv3
 -- or any later version.
@@ -74,24 +72,29 @@ local function vimNavigate(n, char, extend)
 	end
 	geany.select()
 	if char == "h" then
-		geany.navigate("char", -1 * n, true)
+		geany.navigate("char", -1 * n, extend)
 	elseif char == "j" then
 		geany.navigate("edge", -1)
-		geany.navigate("line", n+1, true)
+		geany.navigate("line", n+1, extend)
 	elseif char == "k" then
 		geany.navigate("edge", -1)
 		geany.navigate("line", 1)
-		geany.navigate("line", -1 * (n+1), true)
+		geany.navigate("line", -1 * (n+1), extend)
 	elseif char == "l" then
-		geany.navigate("char", n, true)
+		geany.navigate("char", n, extend)
 	else
 		for i = 1, n do
-			if char == "e" then navWordEndRight(true)
-			elseif char == "E" then navWORDEndRight(true)
-			elseif char == "w" then navWordStartRight(true)
-			elseif char == "W" then navWORDStartRight(true)
-			elseif char == "b" then navWordStartLeft(true)
-			elseif char == "B" then navWORDStartLeft(true)
+			if char == "e" then navWordEndRight(extend)
+			elseif char == "E" then navWORDEndRight(extend)
+			elseif char == "w" then navWordStartRight(extend)
+			elseif char == "W" then navWORDStartRight(extend)
+			elseif char == "b" then navWordStartLeft(extend)
+			elseif char == "B" then navWORDStartLeft(extend)
+			elseif char == "f" then
+				local searchText = geany.keygrab()
+				if SYMBOL_KEYS[searchText] then searchText = SYMBOL_KEYS[searchText] end
+				local newIndex = geany.text():find(searchText, geany.caret(), extend)
+				geany.navigate("char", newIndex - geany.caret(), extend)
 			end
 		end
 	end
