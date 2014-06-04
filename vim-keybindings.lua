@@ -11,7 +11,7 @@ dofile(geany.appinfo()["scriptdir"]..geany.dirsep.."util.lua")
 
 ---- Define constants
 debugEnabled = false
-KEY_GROUPS["nav"] = "hjklwWeEbB"
+KEY_GROUPS["nav"] = "hjklwWeEbBfF"
 SYMBOL_KEYS = {
  ["numbersign"]="#",
  ["slash"]="/",
@@ -49,15 +49,20 @@ SYMBOL_KEYS = {
 
 ---- Define functions ----
 
+local function getChar(prompt) do
+	local char = geany.keygrab(prompt)
+	if SYMBOL_KEYS[char] then char = SYMBOL_KEYS[char] end
+	return char
+end
 
 local function getCharWithRepeats(prompt)
 	local n = 0
-	local char = geany.keygrab(prompt)
+	local char = getChar(prompt)
 	while string.match(char, "^[0-9]$") do
 		if n == 0 then n = tonumber(char)
 		else n = (n * 10) + tonumber(char)
 		end
-		char = geany.keygrab(prompt..n)
+		char = getChar(prompt..n)
 	end
 	if n == 0 then n = 1 end
 	return n,char
@@ -90,10 +95,11 @@ local function vimNavigate(n, char, extend)
 			elseif char == "W" then navWORDStartRight(extend)
 			elseif char == "b" then navWordStartLeft(extend)
 			elseif char == "B" then navWORDStartLeft(extend)
-			elseif char == "f" then
-				local searchText = geany.keygrab()
-				if SYMBOL_KEYS[searchText] then searchText = SYMBOL_KEYS[searchText] end
-				local newIndex = geany.text():find(searchText, geany.caret(), extend)
+			elseif char == "f" or char == "F" then
+				local searchText = getChar()
+				local text = geany.text()
+				if char == "F" then text = text:reverse() end
+				local newIndex = text:find(searchText, geany.caret(), extend)
 				geany.navigate("char", newIndex - geany.caret(), extend)
 			end
 		end
