@@ -12,52 +12,7 @@
 ---- Define functions ----
 debugEnabled = false
 
-function debugMessage(message)
-	if debugEnabled then geany.message("DEBUG", message) end
-end
-
-local function getListCommand(dirname, fileFilter)
-	return "ls "..dirname..geany.dirsep..fileFilter
-end
-
-local function ensureDirExists(dirname)
-	if not (os.execute(getListCommand(dirname, "")) == 0) then
-		debugMessage("Creating directory "..dirname)
-		os.execute("mkdir -p "..dirname)
-	end
-end
-
-function getSupportDir()
-	local dir = geany.appinfo().scriptdir..geany.dirsep.."support"
-	ensureDirExists(dir)
-	return dir
-end
-
-local function getOutputLines(command)
-	local lines = {}
-	local lineCount = 0
-	local tempFile = os.tmpname()
-	debugMessage("Writing output of ["..command.."] to "..tempFile)
-	local result = os.execute(command.." >> "..tempFile)
-	if result == 0 then
-		for line in io.lines(tempFile) do
-			-- need to index from 1 to show up properly in choose dialog
-			lineCount = lineCount + 1
-			lines[lineCount] = line
-			debugMessage("Output line "..lineCount.." is "..line)
-		end
-	else debugMessage("Failed to run command ["..command.."]\n\nError code: "..result)
-	end
-	debugMessage("Returning "..lineCount.." output lines")
-	return lineCount,lines
-end
-
-local function setFileContents(filename, contents)
-	local fileHandle = io.open(filename, "w")
-	fileHandle:write(contents)
-	fileHandle:flush()
-	fileHandle:close()
-end
+dofile(geany.appinfo()["scriptdir"]..geany.dirsep.."util.lua")
 
 local function getFileExtension(filename)
 	debugMessage("Extracting file extension of "..filename)
