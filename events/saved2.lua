@@ -8,18 +8,20 @@
 --
 -- Requires
 --   + A temporary file to read from/write to.  This file serves two purposes.
---     1) Due to geany.open() not triggering a refresh after using os.execute to modify the current file 
---        (cached documents maybe?), our other option is to os.execute to write to an external file then read from that.
---     2) geany.save() will retrigger this 'saved.lua' file.  We can then use this external file to keep track
---        of whether we've already ran our code.
+--     1) Due to geany.open() not triggering a refresh after using os.execute to modify the current file,
+--        our other option is to use os.execute to write to an external file and read from that.
+--     2) geany.save() will retrigger this 'saved.lua' file.  We can then use this external file to prevent
+--        an infinite loop.
 --
 -- Suggested
 --   + I suggest you download the newest geany plusins code at https://github.com/geany/geany-plugins and compilie that
 --     from source.  The steps are incredibly easy, and doing so will give you a new lua call I made 'geany.status(message)'.
 --     This allows you to write a message to the status window which is nicer than displaying a popup for messages that don't
 --     require your attention.
+--
+---------------------------------------------------
 
-
+-- gets the extension of the file (includes the period)
 ext = geany.fileinfo()["ext"]
 
 SAVE_FILE = "<absolute path to a safe temporary file here>"
