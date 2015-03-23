@@ -7,16 +7,8 @@
 
 ---- Define functions ----
 
-local ALLOW_SELECTED_TEXT_SEARCH = true
-local BASE_DIR_ENV_VAR = "geanylua_ofbt_basedir"
-
 local function isProjectOpen()
     return not (geany.appinfo().project == nil)
-end
-
-local function getBaseDirEnvironmentVar()
-	-- ofbt = open file by typing
-	return os.getenv(BASE_DIR_ENV_VAR)
 end
 
 local function getBaseDir()
@@ -79,18 +71,12 @@ end
 ---- Start execution ----
 
 if not isProjectOpen() then
-	basedir = getBaseDirEnvironmentVar()
-	if basedir == nil then
-		basedir = geany.input("WARNING: No project is open. Searching the entire filesystem may be very slow.\nPlease choose the base directory to search.")
-	end
-	--else
-	--~ geany.message("DEBUG", "no project - environment variable set to: '" .. basedir .. "'")
-	--end
+    basedir = geany.input("WARNING: No project is open. Searching the entire filesystem may be very slow.\nPlease choose the base directory to search.")
 end
 
 local searchString = geany.selection()
 
-if (searchString == "" and ALLOW_SELECTED_TEXT_SEARCH) then
+if searchString == "" then
     searchString = geany.input("Please enter all or part of the filename that you wish to open.\nYou can use shell wildcards * and ?", geany.selection())
 end
 
